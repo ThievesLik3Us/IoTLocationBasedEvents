@@ -1,0 +1,36 @@
+{
+    "Events": [
+        {
+            "Event Name" : "Turn On Bedroom Lights",
+            "RSSI Comparison Type": ">=",
+            "RSSI Threshold": -100,
+            "Enabled By": "Default,Turn Off Bedroom Lights",
+            "Disabled By": "Self",
+            "Function To Call When Triggered": "TurnOnBedroomLights"
+        },
+        {
+            "Event Name" : "Turn Off Bedroom Lights",
+            "RSSI Comparison Type": "<=",
+            "RSSI Threshold": -100,
+            "Enabled By": "Turn On Bedroom Lights",
+            "Disabled By": "Default,Self",
+            "Function To Call When Triggered": "TurnOffBedroomLights"
+        },
+        {
+            "Event Name" : "Turn On Living Room Lights",
+            "RSSI Comparison Type": "Range",
+            "RSSI Threshold": [-10,-100],
+            "Enabled By": "Default,Turn off Living Room Lights",
+            "Disabled By": "Self",
+            "Function To Call When Triggered": "TurnOnLivingRoomLights"
+        },
+        {
+            "Event Name" : "Turn Off Living Room Lights",
+            "RSSI Comparison Type": "<",
+            "RSSI Threshold": -100,
+            "Enabled By": "Turn On Bedroom Lights",
+            "Disabled By": "Default,Self",
+            "Function To Call When Triggered": "TurnOffLivingRoomLights"
+        }
+    ]
+}
