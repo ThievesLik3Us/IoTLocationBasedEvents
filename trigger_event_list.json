@@ -1,36 +1,41 @@
 {
+    "Bluetooth MAC Addresses": ["D8:0B:9A:CB:DA:CF", "57:99:9E:33:5A:8B", "5C:01:ED:92:1B:0A", "4F:7F:2B:9A:7F:02"],
     "Events": [
         {
             "Event Name" : "Turn On Bedroom Lights",
             "RSSI Comparison Type": ">=",
-            "RSSI Threshold": -100,
-            "Enabled By": "Default,Turn Off Bedroom Lights",
-            "Disabled By": "Self",
-            "Function To Call When Triggered": "TurnOnBedroomLights"
+            "RSSI Threshold": -50,
+            "Enabled By": ["Default","Turn Off Bedroom Lights"],
+            "Disabled By": ["Self"],
+            "Function To Call When Triggered": "TurnOnBedroomLights",
+            "Time Interval Before Next Event Can Trigger": 3
         },
         {
             "Event Name" : "Turn Off Bedroom Lights",
             "RSSI Comparison Type": "<=",
-            "RSSI Threshold": -100,
-            "Enabled By": "Turn On Bedroom Lights",
-            "Disabled By": "Default,Self",
-            "Function To Call When Triggered": "TurnOffBedroomLights"
+            "RSSI Threshold": -50,
+            "Enabled By": ["Turn On Bedroom Lights"],
+            "Disabled By": ["Default","Self"],
+            "Function To Call When Triggered": "TurnOffBedroomLights",
+            "Time Interval Before Next Event Can Trigger": 3
         },
         {
             "Event Name" : "Turn On Living Room Lights",
             "RSSI Comparison Type": "Range",
             "RSSI Threshold": [-10,-100],
-            "Enabled By": "Default,Turn off Living Room Lights",
-            "Disabled By": "Self",
-            "Function To Call When Triggered": "TurnOnLivingRoomLights"
+            "Enabled By": ["Default","Turn Off Living Room Lights"],
+            "Disabled By": ["Self"],
+            "Function To Call When Triggered": "TurnOnLivingRoomLights",
+            "Time Interval Before Next Event Can Trigger": 3
         },
         {
             "Event Name" : "Turn Off Living Room Lights",
             "RSSI Comparison Type": "<",
             "RSSI Threshold": -100,
-            "Enabled By": "Turn On Bedroom Lights",
-            "Disabled By": "Default,Self",
-            "Function To Call When Triggered": "TurnOffLivingRoomLights"
+            "Enabled By": ["Turn On Bedroom Lights"],
+            "Disabled By": ["Default","Self"],
+            "Function To Call When Triggered": "TurnOffLivingRoomLights",
+            "Time Interval Before Next Event Can Trigger": 3
         }
     ]
 }
