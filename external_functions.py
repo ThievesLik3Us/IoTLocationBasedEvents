@@ -10,10 +10,3 @@ def TurnOnLivingRoomLights():
 
 def TurnOffLivingRoomLights():
         print("Turned off Living Room lights")
-
-function_lookup = {
-    "TurnOnBedroomLights":TurnOnBedroomLights,
-    "TurnOffBedroomLights":TurnOffBedroomLights,
-    "TurnOnLivingRoomLights":TurnOnLivingRoomLights,
-    "TurnOffLivingRoomLights":TurnOffLivingRoomLights,
-}

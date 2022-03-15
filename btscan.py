@@ -39,7 +39,6 @@ class event_object():
         
         logging.debug(f"Dependent Events: {self.dependent_events}")
         
-        # trigger_function = function_lookup.get(event_json["Function To Call When Triggered"])
         trigger_function = eval(event_json["Function To Call When Triggered"])
         if(trigger_function != None):
             self.event_trigger_function = trigger_function
@@ -172,7 +171,7 @@ if __name__ == "__main__":
             complete_string = ""
             
             # Check if the mac address is in the whitelist
-            if(mac_address not in BLUETOOTH_MAC_WHITELIST):
+            if(mac_address in BLUETOOTH_MAC_WHITELIST):
                 triggering_events.CheckRSSIThreshold(int(rssi[0]))
 
 
