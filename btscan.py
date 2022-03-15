@@ -76,7 +76,7 @@ class event_object():
         return rssi <= self.event_rssi_threshold
 
     def RangeComparison(self, rssi):
-        return self.event_rssi_threshold[0] <= rssi <= self.event_rssi_threshold[1]
+        return self.event_rssi_threshold[0] >= rssi >= self.event_rssi_threshold[1]
             
     def ExecuteTrigger(self):
         if((time.time() - self.last_time_event_was_triggered) > self.time_between_events):
