@@ -47,6 +47,8 @@ class event_object():
 
         self.last_time_event_was_triggered = 0
         self.time_between_events = event_json["Time Interval Before Next Event Can Trigger"] # wait 3 seconds after each even occurs to trigger another event
+        self.lack_of_detection_time = event_json["Time Interval To Trigger Event After Lack Of Detection"]
+        self.last_detection_time = 0
 
     def ParseConditions(self, event_conditions, condition_value):
 
@@ -98,11 +100,16 @@ class event_object():
     def CheckRSSIThreshold(self, rssi):
         if(self.comparison_function(rssi)):
             self.ExecuteTrigger()
+        
+        self.DeviceDetected()
             
     def TriggerDependentFunctions(self):
         for (event_object, enabled_or_disabled) in self.dependent_events.values():
             event_object.trigger_enabled = enabled_or_disabled
             logging.debug(f"Event {event_object.event_name} is now set to {enabled_or_disabled}")
+    
+    def DeviceDetected(self):
+        self.last_detection_time = time.time()
 
 class trigger_events():
     def __init__(self):
@@ -117,7 +124,15 @@ class trigger_events():
             if(single_event_object.trigger_enabled == True):
                 # RSSI values are negative so the lower (less negative) a value is the closer it is to the sensor
                 single_event_object.CheckRSSIThreshold(rssi)
-
+        
+    def CheckTimeSinceDetection(self):
+        for single_event_object in self.event_dict.values():
+            # logging.debug(f"{single_event_object.event_name} is {single_event_object.trigger_enabled}")
+            if(single_event_object.trigger_enabled == True and (single_event_object.lack_of_detection_time > 0)):
+                if((time.time() - single_event_object.last_detection_time) > single_event_object.lack_of_detection_time):
+                    single_event_object.ExecuteTrigger()
+                    single_event_object.last_detection_time = 0
+    
     def ResolveEventDependencies(self):
         for single_event_object in self.event_dict.values():
             for (dependent_event, enabled_or_disabled) in single_event_object.dependent_events.items():
@@ -156,7 +171,7 @@ if __name__ == "__main__":
 
     complete_string = ""
     mac_address = ""
-    for line in run("btmon", 10):
+    for line in run("btmon", 1000):
         str_line = str(line)
         if("Address: " in str_line):
             split_line = str_line.split("Address: ")
@@ -164,15 +179,18 @@ if __name__ == "__main__":
             complete_string = f"Address: {address[0]}, "
             mac_address = str(address[0])
         elif("RSSI: " in str_line):
-            split_line = str_line.split("RSSI: ")
-            rssi = split_line[1].split(" ")
-            complete_string = complete_string + f"RSSI: {rssi[0]}"
-            print(complete_string)
-            complete_string = ""
-            
-            # Check if the mac address is in the whitelist
-            if(mac_address in BLUETOOTH_MAC_WHITELIST):
-                triggering_events.CheckRSSIThreshold(int(rssi[0]))
+            if("RSSI: invalid" not in str_line):
+                split_line = str_line.split("RSSI: ")
+                rssi = split_line[1].split(" ")
+                complete_string = complete_string + f"RSSI: {rssi[0]}"
+                print(complete_string)
+                complete_string = ""
+                
+                # Check if the mac address is in the whitelist
+                if(mac_address in BLUETOOTH_MAC_WHITELIST):
+                    triggering_events.CheckRSSIThreshold(int(rssi[0]))
+                else:
+                    triggering_events.CheckTimeSinceDetection()
 
 
     btctl.sendline("scan off")
