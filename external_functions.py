@@ -2,6 +2,12 @@
 from phue import Bridge
 
 
+def TestFunctionOn():
+        print("Called Test Function On")
+
+def TestFunctionOff():
+        print("Called Test Function Off")
+
 def TurnOnBedroomLights():
         b = Bridge('192.168.1.112')
 

@@ -10,28 +10,33 @@ class event_object():
         
         self.event_name = event_json["Event Name"]
         
-        # Determine how to compare against the RSSI value
-        event_rssi_comparison = event_json["RSSI Comparison Type"]
+        # This is the trigger type which can be RSSI, Connect, or Disconnect
+        self.event_trigger_type = event_json["Event Trigger Type"]
         
-        if(event_rssi_comparison == ">"):
-            self.comparison_function = self.GreaterThanComparison
-        elif(event_rssi_comparison == ">="):
-            self.comparison_function = self.GreaterThanOrEqualComparison
-        elif(event_rssi_comparison == "="):
-            self.comparison_function = self.EqualComparison
-        elif(event_rssi_comparison == "<"):
-            self.comparison_function = self.LessThanComparison
-        elif(event_rssi_comparison == "<="):
-            self.comparison_function = self.LessThanOrEqualComparison
-        elif(event_rssi_comparison == "Range"):
-            self.comparison_function = self.RangeComparison
-        else:
-            logging.warn("Comparison type is invalid")
-            self.comparison_function = None
-        logging.debug(f"Comparison type {self.comparison_function}")
+        
+        if("RSSI" in self.event_trigger_type):
+            # Determine how to compare against the RSSI value
+            event_rssi_comparison = event_json["RSSI Comparison Type"]
 
-        self.event_rssi_threshold = event_json["RSSI Threshold"]
-        logging.debug(f"RSSI threshold: {self.event_rssi_threshold}")
+            if(event_rssi_comparison == ">"):
+                self.comparison_function = self.GreaterThanComparison
+            elif(event_rssi_comparison == ">="):
+                self.comparison_function = self.GreaterThanOrEqualComparison
+            elif(event_rssi_comparison == "="):
+                self.comparison_function = self.EqualComparison
+            elif(event_rssi_comparison == "<"):
+                self.comparison_function = self.LessThanComparison
+            elif(event_rssi_comparison == "<="):
+                self.comparison_function = self.LessThanOrEqualComparison
+            elif(event_rssi_comparison == "Range"):
+                self.comparison_function = self.RangeComparison
+            else:
+                logging.warn("Comparison type is invalid")
+                self.comparison_function = None
+            logging.debug(f"Comparison type {self.comparison_function}")
+
+            self.event_rssi_threshold = event_json["RSSI Threshold"]
+            logging.debug(f"RSSI threshold: {self.event_rssi_threshold}")
 
         self.dependent_events = dict()
         self.ParseConditions(event_json["Enabled By"], True)
@@ -98,8 +103,9 @@ class event_object():
             event_object.last_time_event_was_triggered = self.last_time_event_was_triggered
     
     def CheckRSSIThreshold(self, rssi):
-        if(self.comparison_function(rssi)):
-            self.ExecuteTrigger()
+        if("RSSI" in self.event_trigger_type):
+            if(self.comparison_function(rssi)):
+                self.ExecuteTrigger()
         
         self.DeviceDetected()
             
@@ -111,6 +117,11 @@ class event_object():
     def DeviceDetected(self):
         self.last_detection_time = time.time()
 
+    def AttemptConnection(self, btctl, mac_address):
+        if("Connect" in self.event_trigger_type):
+            btctl.sendline(f"connect {mac_address}")
+
+
 class trigger_events():
     def __init__(self):
         self.event_dict = dict()
@@ -118,13 +129,19 @@ class trigger_events():
     def addEvent(self, event_object):
         self.event_dict[event_object.event_name] = event_object
 
-    def CheckRSSIThreshold(self, rssi):
+    def CheckTriggerCriteria(self, btctl, mac_address, rssi, connected):
         for single_event_object in self.event_dict.values():
             # logging.debug(f"{single_event_object.event_name} is {single_event_object.trigger_enabled}")
             if(single_event_object.trigger_enabled == True):
                 # RSSI values are negative so the lower (less negative) a value is the closer it is to the sensor
-                single_event_object.CheckRSSIThreshold(rssi)
-        
+                if("RSSI" in single_event_object.event_trigger_type):
+                    single_event_object.CheckRSSIThreshold(rssi)
+                elif("Connect" in single_event_object.event_trigger_type and connected == False):
+                    single_event_object.ExecuteTrigger()
+                    single_event_object.AttemptConnection(btctl, mac_address)
+                elif("Disconnect" in single_event_object.event_trigger_type and connected == False):
+                    single_event_object.ExecuteTrigger()
+
     def CheckTimeSinceDetection(self):
         for single_event_object in self.event_dict.values():
             # logging.debug(f"{single_event_object.event_name} is {single_event_object.trigger_enabled}")
@@ -171,9 +188,19 @@ if __name__ == "__main__":
 
     complete_string = ""
     mac_address = ""
+    Connection = False
     for line in run("btmon", 1000):
         str_line = str(line)
-        if("Address: " in str_line):
+        if("@ MGMT Event: Device Connected" in str_line):
+            Connection = True
+            print(line)
+        elif("@ MGMT Event: Device Disconnected" in str_line):
+            Connection = False
+            print(line)
+            triggering_events.CheckTriggerCriteria(btctl, mac_address, int(rssi[0]), Connection)
+        elif("@ MGMT Event: Connect Failed" in str_line):
+            print("Connection Failed")
+        elif("Address: " in str_line):
             split_line = str_line.split("Address: ")
             address = split_line[1].split(" ")
             complete_string = f"Address: {address[0]}, "
@@ -183,12 +210,12 @@ if __name__ == "__main__":
                 split_line = str_line.split("RSSI: ")
                 rssi = split_line[1].split(" ")
                 complete_string = complete_string + f"RSSI: {rssi[0]}"
-                print(complete_string)
-                complete_string = ""
                 
                 # Check if the mac address is in the whitelist
                 if(mac_address in BLUETOOTH_MAC_WHITELIST):
-                    triggering_events.CheckRSSIThreshold(int(rssi[0]))
+                    print(complete_string)
+                    complete_string = ""
+                    triggering_events.CheckTriggerCriteria(btctl, mac_address, int(rssi[0]), Connection)
                 else:
                     triggering_events.CheckTimeSinceDetection()
 

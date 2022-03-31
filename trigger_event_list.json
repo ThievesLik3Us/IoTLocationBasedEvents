@@ -1,28 +1,29 @@
 {
-    "Bluetooth MAC Addresses": ["F4:9D:80:AD:5E:DF"],
+    "Bluetooth MAC Addresses": ["D8:0B:9A:CB:DA:CF"],
     "Events": [
         {
             "Event Name" : "Turn On Bedroom Lights",
+            "Event Trigger Type" : "Connect",
             "RSSI Comparison Type": ">=",
             "RSSI Threshold": -79,
             "Enabled By": ["Default","Turn Off Bedroom Lights"],
             "Disabled By": ["Self"],
-            "Function To Call When Triggered": "TurnOnBedroomLights",
+            "Function To Call When Triggered": "TestFunctionOn",
             "Time Interval Before Next Event Can Trigger": 1,
             "Time Interval To Trigger Event After Lack Of Detection": -1
         },
         {
             "Event Name" : "Turn Off Bedroom Lights",
-            "RSSI Comparison Type": "<=",
-            "RSSI Threshold": -81,
+            "Event Trigger Type" : "Disconnect",
             "Enabled By": ["Turn On Bedroom Lights"],
             "Disabled By": ["Default","Self"],
-            "Function To Call When Triggered": "TurnOffBedroomLights",
+            "Function To Call When Triggered": "TestFunctionOff",
             "Time Interval Before Next Event Can Trigger": 1,
             "Time Interval To Trigger Event After Lack Of Detection": -1
         },
         {
             "Event Name" : "Turn On Living Room Lights",
+            "Event Trigger Type" : "RSSI",
             "RSSI Comparison Type": "Range",
             "RSSI Threshold": [-10,-100],
             "Enabled By": ["Default","Turn Off Living Room Lights"],
@@ -33,6 +34,7 @@
         },
         {
             "Event Name" : "Turn Off Living Room Lights",
+            "Event Trigger Type" : "RSSI",
             "RSSI Comparison Type": "<",
             "RSSI Threshold": -100,
             "Enabled By": ["Turn On Bedroom Lights"],
