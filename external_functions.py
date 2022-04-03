@@ -56,3 +56,22 @@ def TurnOnLivingRoomLights():
 
 def TurnOffLivingRoomLights():
         print("Turned off Living Room lights")
+
+def ArmLivingRoomCamera():
+        print("Arming Living Room Camera")
+        event = "blink_armed_event"
+        response = requests.get("https://maker.ifttt.com/trigger/{event}/json/with/key/hjcwUc4ehMp9UiBpYJtEzzVUzHInxcNTEmc21ClEcKb")
+        if response.status_code == 200:
+                print("Living Room Camera Armed Successfully.")
+        else:
+                print("Arming Living Camera Failed.")
+
+def DisarmLivingRoomCamera():
+        print("Disarming Living Room Camera")
+        event = "blink_disarmed_event"
+        response = requests.get("https://maker.ifttt.com/trigger/{event}/json/with/key/hjcwUc4ehMp9UiBpYJtEzzVUzHInxcNTEmc21ClEcKb")
+        if response.status_code == 200:
+                print("Living Room Camera Disarmed Successfully.")
+        else:
+                print("Disarming Living Camera Failed.")
+

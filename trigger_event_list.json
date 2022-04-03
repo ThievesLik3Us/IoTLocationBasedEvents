@@ -42,6 +42,28 @@
             "Function To Call When Triggered": "TurnOffLivingRoomLights",
             "Time Interval Before Next Event Can Trigger": 3,
             "Time Interval To Trigger Event After Lack Of Detection": -1
+        },
+        {
+            "Event Name" : "Arm Living Room Camera",
+            "Event Trigger Type" : "RSSI",
+            "RSSI Comparison Type": "<",
+            "RSSI Threshold": -65,
+            "Enabled By": ["Defaults", "Disarm Living Room Camera"],
+            "Disabled By": ["Self"],
+            "Function To Call When Triggered": "ArmLivingRoomCamera",
+            "Time Interval Before Next Event Can Trigger": 3,
+            "Time Interval To Trigger Event After Lack Of Detection": -1
+        },
+        {
+            "Event Name" : "Disarm Living Room Camera",
+            "Event Trigger Type" : "RSSI",
+            "RSSI Comparison Type": "<",
+            "RSSI Threshold": -65,
+            "Enabled By": ["Arm Living Room Camera"],
+            "Disabled By": ["Default", "Self"],
+            "Function To Call When Triggered": "DisarmLivingRoomCamera",
+            "Time Interval Before Next Event Can Trigger": 3,
+            "Time Interval To Trigger Event After Lack Of Detection": -1
         }
     ]
 }
