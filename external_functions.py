@@ -1,6 +1,10 @@
 
 from phue import Bridge
 
+ifttt_websocket_url = "https://maker.ifttt.com/trigger/:event/json/with/key/hjcwUc4ehMp9UiBpYJtEzzVUzHInxcNTEmc21ClEcKb"
+turn_off_bedroom_light_event = "turn_off_bedroom_light_event"
+reading_hour_activated_event = "reading_hour_activated_event"
+blue_hour_activated_event = "blue_hour_activated_event"
 
 def TestFunctionOn():
         print("Called Test Function On")
@@ -60,7 +64,7 @@ def TurnOffLivingRoomLights():
 def ArmLivingRoomCamera():
         print("Arming Living Room Camera")
         event = "blink_armed_event"
-        response = requests.get("https://maker.ifttt.com/trigger/{event}/json/with/key/hjcwUc4ehMp9UiBpYJtEzzVUzHInxcNTEmc21ClEcKb")
+        response = requests.get(ifttt_websocket_url.replace(":event", event))
         if response.status_code == 200:
                 print("Living Room Camera Armed Successfully.")
         else:
@@ -69,9 +73,33 @@ def ArmLivingRoomCamera():
 def DisarmLivingRoomCamera():
         print("Disarming Living Room Camera")
         event = "blink_disarmed_event"
-        response = requests.get("https://maker.ifttt.com/trigger/{event}/json/with/key/hjcwUc4ehMp9UiBpYJtEzzVUzHInxcNTEmc21ClEcKb")
+        response = requests.get(ifttt_websocket_url.replace(":event", event))
         if response.status_code == 200:
                 print("Living Room Camera Disarmed Successfully.")
         else:
                 print("Disarming Living Camera Failed.")
+
+def TurnOnReadingLight():
+        print("Turning Reading Light On")
+        response = requests.get(ifttt_websocket_url.replace(":event", reading_hour_activated_event))
+        if response.status_code == 200:
+                print("Reading Light Turned On Successfully.")
+        else:
+                print("Turning Reading Light On Failed.")
+
+def TurnOnBlueLight():
+        print("Turning Blue Light On")
+        response = requests.get(ifttt_websocket_url.replace(":event", blue_hour_activated_event))
+        if response.status_code == 200:
+                print("Blue Light Turned On Successfully.")
+        else:
+                print("Turning Blue Light On Failed.")
+
+def TurnOffAllLight():
+        print("Turning All Light Off")
+        response = requests.get(ifttt_websocket_url.replace(":event", turn_off_bedroom_light_event))
+        if response.status_code == 200:
+                print("All Light Turned Off Successfully.")
+        else:
+                print("Turning All Light Off Failed.")
 
